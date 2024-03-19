@@ -16,19 +16,41 @@ const formatDate = (date: string) => {
   })
 }
 
-function calculateHolidayCountNext(holidayDate: string) {
-  // Convert the holiday date to a Date object
-  const holiday = new Date(holidayDate);
+// function calculateHolidayCountNext(holidayDate: string) {
+//   // Convert the holiday date to a Date object
+//   const holiday = new Date(holidayDate);
 
-  // Get the current date
-  const today = new Date();
+//   // Get the current date
+//   const today = new Date();
+
+//   // Set the time part of both dates to 00:00:00 to compare only the dates
+//   holiday.setHours(0, 0, 0, 0);
+//   today.setHours(0, 0, 0, 0);
+
+//   // Calculate the difference in milliseconds
+//   const timeDifference = holiday.getTime() - today.getTime(); // Use getTime() to get the time value in milliseconds
+
+//   // Convert the difference to days
+//   const dayDifference = Math.round(timeDifference / (1000 * 60 * 60 * 24));
+
+//   return dayDifference;
+// }
+
+
+function calculateHolidayCountNext(holidayDate: string) {
+  // Convert the holiday date to a Date object using Colombia's time zone
+  const holiday = new Date(holidayDate + ' GMT-0500');
+
+  // Get the current date using Colombia's time zone
+  const today = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
 
   // Set the time part of both dates to 00:00:00 to compare only the dates
   holiday.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
+  const todayDate = new Date(today);
+  todayDate.setHours(0, 0, 0, 0);
 
   // Calculate the difference in milliseconds
-  const timeDifference = holiday.getTime() - today.getTime(); // Use getTime() to get the time value in milliseconds
+  const timeDifference = holiday.getTime() - todayDate.getTime();
 
   // Convert the difference to days
   const dayDifference = Math.round(timeDifference / (1000 * 60 * 60 * 24));
@@ -36,59 +58,29 @@ function calculateHolidayCountNext(holidayDate: string) {
   return dayDifference;
 }
 
-// export const getHolidays = () => {
-//   const currentYear = new Date().getFullYear()
-//   const currentDate = new Date()
-
-//   const currentYearHolidays = colombianHolidaysByYear(currentYear) as Holidays[]
-
-//   const fullHolidays = currentYearHolidays.map((holiday, index) => {
-//     return {
-//       index,
-//       diff: new Date(currentDate).getTime() - new Date(holiday.holiday).getTime(),
-//       holidayLocaleDate: formatDate(holiday.holiday),
-//       holidayCountNext: calculateHolidayCountNext(holiday.holiday),
-//       holidayDate: holiday.holiday,
-//       holidayName: holiday.holidayName,
-//     }
-//   })
-
-//   const [nextHoliday] = fullHolidays.filter(nh => (nh.diff) <= 0)
-
-//   return {
-//     count: fullHolidays.length,
-//     holidays: fullHolidays.map(h => ({ ...h })),
-//     nextHoliday: nextHoliday ? { ...nextHoliday } : null,
-//     isHolidayToday: nextHoliday.holidayCountNext === 0
-//   }
-// }
-
 export const getHolidays = () => {
-  const currentYear = new Date().getUTCFullYear(); // Año actual en UTC
-  const currentDate = new Date(); // Fecha actual (en la zona horaria del servidor)
+  const currentYear = new Date().getFullYear()
+  const currentDate = new Date()
 
-  // Convertir explícitamente currentDate a GMT-0500 (Hora estándar de Colombia)
-  currentDate.setUTCHours(currentDate.getUTCHours() - 5);
-
-  const currentYearHolidays = colombianHolidaysByYear(currentYear) as Holidays[];
+  const currentYearHolidays = colombianHolidaysByYear(currentYear) as Holidays[]
 
   const fullHolidays = currentYearHolidays.map((holiday, index) => {
     return {
       index,
-      diff: currentDate.getTime() - new Date(holiday.holiday).getTime(),
+      diff: new Date(currentDate).getTime() - new Date(holiday.holiday).getTime(),
       holidayLocaleDate: formatDate(holiday.holiday),
       holidayCountNext: calculateHolidayCountNext(holiday.holiday),
       holidayDate: holiday.holiday,
       holidayName: holiday.holidayName,
-    };
-  });
+    }
+  })
 
-  const [nextHoliday] = fullHolidays.filter(nh => nh.diff <= 0);
+  const [nextHoliday] = fullHolidays.filter(nh => (nh.diff) <= 0)
 
   return {
     count: fullHolidays.length,
     holidays: fullHolidays.map(h => ({ ...h })),
     nextHoliday: nextHoliday ? { ...nextHoliday } : null,
-    isHolidayToday: nextHoliday?.holidayCountNext === 0,
-  };
-};
+    isHolidayToday: nextHoliday.holidayCountNext === 0
+  }
+}
