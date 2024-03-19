@@ -1,0 +1,70 @@
+---
+import { GET } from '@/pages/api/holidays.json'
+
+import Footer from '@/components/footer.astro'
+
+type Holiday = {
+	index: number;
+  diff: number;
+	holidayLocaleDate: string;
+	holidayCountNext: number;
+	holidayDate: Date;
+	holidayName: string;
+}
+
+type Response = {
+	count: number;
+	holidays: Holiday[];
+	nextHoliday: Holiday;
+	isHolidayToday: boolean;
+}
+
+const response = await GET(Astro)
+const data = (await response.json()) as Response // Verify is this is the correct way to cast the response to the type
+
+const {
+    isHolidayToday,
+    nextHoliday: { holidayCountNext, holidayLocaleDate, holidayName },
+  } = data
+
+  const pluralizeFalta = holidayCountNext > 1 ? "faltan" : "falta"
+  const pluralizeDia = holidayCountNext > 1 ? "días" : "día"
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="canonical" href="https://www.esfestivo.co/" />
+		<meta name="description" content="Conoce todos los feriados/festivos en Colombia" />
+		<title>¿Es festivo en Colombia?"</title>
+	</head>
+	<body class="flex min-h-screen flex-col">
+		<main class="mx-4 flex flex-1 items-center justify-center sm:container">
+			<div class="py-6 md:py-12 lg:py-16">
+				<div class="container grid items-center gap-4 px-4 text-center md:gap-8 lg:gap-10 xl:grid-cols-2 xl:justify-center 2xl:gap-16">
+					<div class="space-y-4 md:space-y-6 lg:max-w-lg lg:mx-auto xl:space-y-3 xl:max-w-none xl:text-left">
+						<h1 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">¿Es festivo en Colombia?</h1>
+						{isHolidayToday ? (
+							<>
+								<p class="text-4xl">¡Sí!</p>
+								<p class="text-3xl dark:text-gray-400">
+									¡Disfruta tu día libre!: {holidayName}!
+								</p>
+							</>
+						) : (
+							<>
+								<p class="text-3xl">¡No! Aún {pluralizeFalta} {holidayCountNext} {pluralizeDia}</p>
+								<p class="text-2xl dark:text-gray-400">
+									El próximo festivo es el día {holidayLocaleDate}
+								</p>
+							</>
+						)}
+					</div>
+				</div>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>
