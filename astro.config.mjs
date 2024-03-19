@@ -1,5 +1,6 @@
 import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
+import vercel from "@astrojs/vercel/serverless";
 
 import { seoConfig } from "./src/utils/seo-config";
 
@@ -11,4 +12,5 @@ export default defineConfig({
     enabled: false,
   },
   integrations: [tailwind()],
+  adapter: vercel(),
 });
