@@ -27,8 +27,10 @@ const {
     nextHoliday: { holidayCountNext, holidayLocaleDate, holidayName },
   } = data
 
-  const pluralizeFalta = holidayCountNext > 1 ? "faltan" : "falta"
-  const pluralizeDia = holidayCountNext > 1 ? "días" : "día"
+const pluralizeFalta = holidayCountNext > 1 ? "faltan" : "falta"
+const pluralizeDia = holidayCountNext > 1 ? "días" : "día"
+
+const serverTime = new Date();
 ---
 
 <html lang="en">
@@ -46,6 +48,7 @@ const {
 				<div class="container grid items-center gap-4 px-4 text-center md:gap-8 lg:gap-10 xl:grid-cols-2 xl:justify-center 2xl:gap-16">
 					<div class="space-y-4 md:space-y-6 lg:max-w-lg lg:mx-auto xl:space-y-3 xl:max-w-none xl:text-left">
 						<h1 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">¿Es festivo en Colombia?</h1>
+						<h2>{serverTime}</h2>
 						{isHolidayToday ? (
 							<>
 								<p class="text-4xl">¡Sí!</p>
