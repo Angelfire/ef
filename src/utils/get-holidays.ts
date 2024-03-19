@@ -36,29 +36,59 @@ function calculateHolidayCountNext(holidayDate: string) {
   return dayDifference;
 }
 
-export const getHolidays = () => {
-  const currentYear = new Date().getFullYear()
-  const currentDate = new Date()
+// export const getHolidays = () => {
+//   const currentYear = new Date().getFullYear()
+//   const currentDate = new Date()
 
-  const currentYearHolidays = colombianHolidaysByYear(currentYear) as Holidays[]
+//   const currentYearHolidays = colombianHolidaysByYear(currentYear) as Holidays[]
+
+//   const fullHolidays = currentYearHolidays.map((holiday, index) => {
+//     return {
+//       index,
+//       diff: new Date(currentDate).getTime() - new Date(holiday.holiday).getTime(),
+//       holidayLocaleDate: formatDate(holiday.holiday),
+//       holidayCountNext: calculateHolidayCountNext(holiday.holiday),
+//       holidayDate: holiday.holiday,
+//       holidayName: holiday.holidayName,
+//     }
+//   })
+
+//   const [nextHoliday] = fullHolidays.filter(nh => (nh.diff) <= 0)
+
+//   return {
+//     count: fullHolidays.length,
+//     holidays: fullHolidays.map(h => ({ ...h })),
+//     nextHoliday: nextHoliday ? { ...nextHoliday } : null,
+//     isHolidayToday: nextHoliday.holidayCountNext === 0
+//   }
+// }
+
+export const getHolidays = () => {
+  const currentYear = new Date().getUTCFullYear(); // Año actual en UTC
+  const currentDate = new Date(); // Fecha actual (en la zona horaria del servidor)
+
+  // Convertir explícitamente currentDate a GMT-0500 (Hora estándar de Colombia)
+  currentDate.setUTCHours(currentDate.getUTCHours() - 5);
+
+  const currentYearHolidays = colombianHolidaysByYear(currentYear) as Holidays[];
 
   const fullHolidays = currentYearHolidays.map((holiday, index) => {
     return {
       index,
-      diff: new Date(currentDate).getTime() - new Date(holiday.holiday).getTime(),
+      diff: currentDate.getTime() - new Date(holiday.holiday).getTime(),
       holidayLocaleDate: formatDate(holiday.holiday),
       holidayCountNext: calculateHolidayCountNext(holiday.holiday),
       holidayDate: holiday.holiday,
       holidayName: holiday.holidayName,
-    }
-  })
+    };
+  });
 
-  const [nextHoliday] = fullHolidays.filter(nh => (nh.diff) <= 0)
+  const [nextHoliday] = fullHolidays.filter(nh => nh.diff <= 0);
 
   return {
     count: fullHolidays.length,
     holidays: fullHolidays.map(h => ({ ...h })),
     nextHoliday: nextHoliday ? { ...nextHoliday } : null,
-    isHolidayToday: nextHoliday.holidayCountNext === 0
-  }
-}
+    isHolidayToday: nextHoliday?.holidayCountNext === 0,
+  };
+};
